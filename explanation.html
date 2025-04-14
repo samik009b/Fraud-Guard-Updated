@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fraud Alert Explanation</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fdfdfd;
+        margin: 0;
+        padding: 2rem;
+        color: #333;
+      }
+      h1 {
+        color: #b00020;
+        font-size: 28px;
+      }
+      .info-box {
+        background: #fff3f3;
+        border-left: 5px solid #b00020;
+        padding: 1rem 1.5rem;
+        margin-top: 1rem;
+        border-radius: 6px;
+      }
+      .info-box p {
+        margin: 0.5rem 0;
+      }
+      .buttons {
+        margin-top: 1.5rem;
+      }
+      .buttons button {
+        margin-right: 10px;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      .back-btn {
+        background: #b00020;
+        color: white;
+      }
+      .back-btn:hover {
+        background: #930000;
+      }
+      .report-btn {
+        background: #ffd54f;
+        color: #333;
+      }
+      .report-btn:hover {
+        background: #ffca28;
+      }
+      .report-count {
+        margin-top: 1rem;
+        font-size: 14px;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>⚠️ Suspicious Website Detected</h1>
+    <div class="info-box">
+      <p><strong>URL:</strong> <span id="urlDisplay"></span></p>
+      <p><strong>Reason:</strong> <span id="reasonDisplay"></span></p>
+      <p>
+        This site was flagged as potentially fraudulent based on pattern
+        detection or phishing reports.
+      </p>
+      <p>
+        Proceed with caution. Do not enter sensitive information unless you are
+        absolutely sure it is safe.
+      </p>
+
+      <div class="report-count" id="reportCount"></div>
+    </div>
+
+    <div class="buttons">
+      <button class="back-btn" onclick="historyBack()">🔙 Go Back</button>
+      <button class="report-btn" onclick="reportSite()">
+        🚨 Report this site
+      </button>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const reason = params.get("reason") || "Unknown reason";
+      const url = params.get("url") || "";
+
+      const urlDisplay = document.getElementById("urlDisplay");
+      const reasonDisplay = document.getElementById("reasonDisplay");
+      const reportCountDisplay = document.getElementById("reportCount");
+
+      urlDisplay.textContent = url;
+      reasonDisplay.textContent = reason;
+
+      const reportKey = "reports_" + encodeURIComponent(url);
+      const count = parseInt(localStorage.getItem(reportKey)) || 0;
+      reportCountDisplay.textContent = `📊 Reported by ${count} user(s)`;
+
+      function reportSite() {
+        let current = parseInt(localStorage.getItem(reportKey)) || 0;
+        localStorage.setItem(reportKey, current + 1);
+        reportCountDisplay.textContent = `📊 Reported by ${
+          current + 1
+        } user(s)`;
+        alert("Thanks for reporting! ✅");
+      }
+
+      function historyBack() {
+        if (document.referrer && document.referrer !== location.href) {
+          window.location.href = document.referrer;
+        } else {
+          chrome.runtime.sendMessage({ type: "goBackFallback" }); // Optional fallback
+        }
+      }
+    </script>
+  </body>
+</html>
